@@ -29,14 +29,32 @@ GROUP BY m.title;
 
 -- QUESTION 4 - List the unique titles of each of the movies released on the most popular release date
 
-SELECT DISTINCT title, release_date, count(title) FROM ratings r
+CREATE VIEW moviesview2
+AS
+	SELECT title, count(title) AS total, release_date
+    FROM ratings r
+	JOIN users u ON r.user_id = u.id
+	JOIN occupations o ON u.occupation_id = o.id
+	JOIN movies m ON r.movie_id = m.id
+	JOIN genres_movies gm ON r.movie_id = gm.id
+	JOIN genres g ON gm.genre_id = g.id
+    GROUP BY release_date
+    ORDER BY release_date ASC
+;
+SELECT release_date, total FROM moviesview2 WHERE total = max(total);
+
+GROUP BY title
+ORDER BY count(title) DESC;
+
+-- doesn't work either
+
+-- QUESTION 5 - Find the total number of movies in each genre; list the results in ascending numeric order. 
+
+SELECT count(title), g.`name` FROM ratings r
 JOIN users u ON r.user_id = u.id
 JOIN occupations o ON u.occupation_id = o.id
 JOIN movies m ON r.movie_id = m.id
 JOIN genres_movies gm ON r.movie_id = gm.id
 JOIN genres g ON gm.genre_id = g.id
-
-GROUP BY release_date
-ORDER BY count(release_date) DESC;
-
--- doesn't work either
+GROUP BY g.id
+ORDER BY count(title) ASC;
