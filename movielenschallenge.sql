@@ -50,11 +50,7 @@ HAVING release_date = (
 
 -- QUESTION 5 - Find the total number of movies in each genre; list the results in ascending numeric order. 
 
-SELECT count(title), g.`name` FROM ratings r
-JOIN users u ON r.user_id = u.id
-JOIN occupations o ON u.occupation_id = o.id
-JOIN movies m ON r.movie_id = m.id
-JOIN genres_movies gm ON r.movie_id = gm.id
-JOIN genres g ON gm.genre_id = g.id
-GROUP BY g.id
-ORDER BY count(title) ASC;
+SELECT count(g.`name`), g.`name` FROM genres g 
+JOIN genres_movies gm ON g.id = gm.genre_id
+GROUP BY g.`name`
+ORDER BY count(g.`name`) ASC;
