@@ -8,14 +8,18 @@ SELECT title, release_date FROM movies WHERE release_date>='1983-01-01' AND rele
 
 -- QUESTION 2 - Without using LIMIT, list the title of the movies with the lowest average rating
 
-SELECT title,avg(rating)FROM movies m
-JOIN ratings r ON m.id=r.movie_id
-GROUP BY title
-HAVING avg(rating)=min(avg(rating))
-ORDER BY avg(rating) ASC;
- -- doesn't work yet
- 
- 
+SELECT title, avg(rating) AS `Average Rating` FROM movies
+JOIN ratings ON movies.id = ratings.movie_id
+GROUP BY movies.title
+HAVING avg(rating) = (
+		SELECT MIN(avg_rating)
+        FROM ( 
+				SELECT AVG(rating) AS avg_rating
+                FROM ratings
+                GROUP BY movie_id
+                ) AS table1
+		)
+ORDER BY AVG(rating);
 -- QUESTION 3 -List the unique records for Sci-Fi movies where male 24-year-old students have given 5 star ratings
 
 SELECT DISTINCT title, gender, age, o.`name`, rating, g.`name` FROM ratings r
@@ -29,24 +33,20 @@ GROUP BY m.title;
 
 -- QUESTION 4 - List the unique titles of each of the movies released on the most popular release date
 
-CREATE VIEW moviesview2
-AS
-	SELECT title, count(title) AS total, release_date
-    FROM ratings r
-	JOIN users u ON r.user_id = u.id
-	JOIN occupations o ON u.occupation_id = o.id
-	JOIN movies m ON r.movie_id = m.id
-	JOIN genres_movies gm ON r.movie_id = gm.id
-	JOIN genres g ON gm.genre_id = g.id
-    GROUP BY release_date
-    ORDER BY release_date ASC
-;
-SELECT release_date, total FROM moviesview2 WHERE total = max(total);
 
+SELECT DISTINCT title, release_date FROM movies
 GROUP BY title
-ORDER BY count(title) DESC;
-
--- doesn't work either
+HAVING release_date = (
+		SELECT release_date
+        FROM ( 
+				SELECT release_date
+                FROM movies
+                GROUP BY release_date
+                ORDER BY count(id) DESC
+                LIMIT 1
+                ) AS table2
+		)
+;
 
 -- QUESTION 5 - Find the total number of movies in each genre; list the results in ascending numeric order. 
 
